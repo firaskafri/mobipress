@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="url"></string>
+    <string name="cookie_request">api/auth/generate_auth_cookie/?nonce=NONCE&amp;username=USER&amp;password=PASSWORD</string>
+    <string name="loginNonce">api/get_nonce/?controller=auth&amp;method=generate_auth_cookie</string>
+    <string name="registerNonce">api/get_nonce/?controller=user&amp;method=register</string>
+    <string name="get_recent_posts">api/get_recent_posts/?</string>
+    <string name="register_request">api/user/register/?nonce=NONCE&amp;username=USER&amp;display_name=DISPLAYNAME&amp;email=UMAIL&amp;password=PASSWORD</string>
+	<string name="report_comment">api/report/report_comment/?c=CID&amp;r=COMMENT</string>
+</resources>
