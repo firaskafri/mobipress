@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Bundle;
+import android.text.Html;
 
 public class WPPost {
 	public static final boolean COMMENT_OPEN = true;
@@ -266,15 +267,19 @@ public class WPPost {
 	}
 
 	public String getCategoriesAsString() {
+		String cats = "";
 		if (categories.size() == 0) {
 			return WPCategory.UNCATEGORIZED;
 		} else {
-			String cats = "";
-			for (WPCategory cat : categories) {
-				cats = cats + cat.getTitle() + ", ";
+			for (int i = 0; i < categories.size(); i++) {
+				if (i == categories.size() - 1) {
+					cats = cats + categories.get(i).getTitle();
+				} else {
+					cats = cats + categories.get(i).getTitle() + ", ";
+				}
 			}
-			return cats;
 		}
+		return cats;
 	}
 
 	public ArrayList<WPTag> getTags() {

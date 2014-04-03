@@ -1,12 +1,18 @@
 package com.jogeeks.wordpress;
 
+import java.io.Serializable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Bundle;
 
-public class WPCategory {
+public class WPCategory implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	static final String CATEGORY_INDEX = "get_category_index";
 	static final String UNCATEGORIZED = "Uncategorized";
 

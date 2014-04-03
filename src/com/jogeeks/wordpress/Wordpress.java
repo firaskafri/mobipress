@@ -116,6 +116,23 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 		httpClient.get(BASE_URL + WPPost.POSTS_URL, postHandler);
 	}
 
+	public void getPosts(WPQuery query, OnPostsReceivedListener listener) {
+		postHandler.setOnPostsReceivedListener(listener);
+		
+		RequestParams reqParams = new RequestParams();
+		reqParams.add(WPQuery.ORDER_BY, query.getOrderByQuery());
+		httpClient.get(BASE_URL + WPPost.POSTS_URL, reqParams, postHandler);
+	}
+	
+	public void getPosts(WPQuery query, int count, int page, OnPostsReceivedListener listener) {
+		postHandler.setOnPostsReceivedListener(listener);
+		RequestParams reqParams = new RequestParams();
+		reqParams.add(WPQuery.ORDER_BY, query.getOrderByQuery());
+		
+		httpClient.get(BASE_URL + WPPost.POSTS_URL + "?" + "count=" + count
+				+ "&" + "page=" + page, reqParams, postHandler);
+	}
+	
 	public void getPosts(int count, int page, OnPostsReceivedListener listener) {
 		postHandler.setOnPostsReceivedListener(listener);
 		httpClient.get(BASE_URL + WPPost.POSTS_URL + "?" + "count=" + count
