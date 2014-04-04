@@ -234,15 +234,7 @@ public class WPPost {
 
 		Iterator<?> iterator;
 		try {
-			JSONObject customFields = data.getJSONObject("custom_fields");
-			iterator = customFields.keys();
-			while (iterator.hasNext()) {
-				   String key = (String)iterator.next();
-				   JSONArray customfield = customFields.getJSONArray(key);
-				   customeFields.add(new WPCustomField(key, customfield.getString(0)));
-				   
-				   Log.d(key, customfield.getString(0));
-				}  
+			customeFields = WPCustomField.parseMetaResponse(data.getJSONObject("custom_fields"));
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

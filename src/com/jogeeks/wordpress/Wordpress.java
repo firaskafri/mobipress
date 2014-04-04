@@ -20,6 +20,7 @@ import com.jogeeks.wordpress.listeners.OnCommentSubmittedListener;
 import com.jogeeks.wordpress.listeners.OnCommentsReceivedListener;
 import com.jogeeks.wordpress.listeners.OnConnectionFailureListener;
 import com.jogeeks.wordpress.listeners.OnCreatePostListener;
+import com.jogeeks.wordpress.listeners.OnCustomFieldsListener;
 import com.jogeeks.wordpress.listeners.OnLoginListener;
 import com.jogeeks.wordpress.listeners.OnPostReceivedListener;
 import com.jogeeks.wordpress.listeners.OnPostsReceivedListener;
@@ -63,8 +64,8 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	private AsyncHttpClient httpClient = new AsyncHttpClient();
 
 	/**
-	 * WordPress constructor. After initializing this constructor, you can call
-	 * several core methods: login(Bundle userData), register(Bundle userData)
+	 * <h1>WordPress constructor. After initializing this constructor, you can call
+	 * several core methods: login(Bundle userData), register(Bundle userData)</h1>
 	 * 
 	 * @param context
 	 *            Pass the application's context to get this initialized.
@@ -83,7 +84,7 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	}
 
 	/**
-	 * Set OnLoginListener to your instance before calling this function
+	 * <h1>Set OnLoginListener to your instance before calling this function</h1>
 	 * 
 	 * @param userData
 	 *            Pass a bundle with two String values that represent user
@@ -96,7 +97,7 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	}
 
 	/**
-	 * Set OnRegisterListener to your instance before calling this function
+	 * <h1>Set OnRegisterListener to your instance before calling this function</h1>
 	 * 
 	 * @param userData
 	 *            Pass a bundle with four String values that represent user info
@@ -110,6 +111,164 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 		httpClient.cancelRequests(context, true);
 	}
 
+	/**
+	 * <h1>Adds a custom field (also called meta-data) to a specified post
+	 * which could be of any post type</h1>
+	 * @param pid
+	 *            integer Post ID
+	 * @param meta
+	 * 			  WPCustomeField object
+	 * @param unique 
+	 * 			  When set to true, the custom field will 
+	 * 			  not be added if the given key already exists among 
+	 * 			  custom fields of the specified post.
+	 */
+	public void addPostMeta(int pid, WPCustomField meta, boolean unique, OnCustomFieldsListener listener){
+		postHandler.setOnCustomFieldsListener(listener);
+		
+		RequestParams reqParams = new RequestParams();
+		reqParams.add("post_id", Integer.toString(pid));
+		reqParams.add("meta_key", meta.getName());
+		reqParams.add("meta_value", meta.getValue());
+		reqParams.add("unique", Boolean.toString(unique));
+		
+		httpClient.get(BASE_URL + WPCustomField.ADD_POST_META, reqParams, postHandler);
+	}
+	
+	/**
+	 * <h1>Adds a custom field (also called meta-data) to a specified post
+	 * which could be of any post type</h1>
+	 * @param pid
+	 *            integer Post ID
+	 * @param meta
+	 * 			  WPCustomeField object with key and the new value
+	 * @param previousValue 
+	 * 			  The old value of the custom field you wish to change. 
+	 * 			  This is to differentiate between several fields with the same key. 
+	 * 			  If omitted, and there are multiple rows for this post and meta key, 
+	 * 			  all meta values will be updated.
+	 */
+	public void updatePostMeta(int pid, WPCustomField meta, String previousValue, OnCustomFieldsListener listener){
+		postHandler.setOnCustomFieldsListener(listener);
+		
+		RequestParams reqParams = new RequestParams();
+		reqParams.add("post_id", Integer.toString(pid));
+		reqParams.add("meta_key", meta.getName());
+		reqParams.add("meta_value", meta.getValue());
+		reqParams.add("prev_value", previousValue);
+		
+		httpClient.get(BASE_URL + WPCustomField.UPDATE_POST_META, reqParams, postHandler);
+	}
+	
+	/**
+	 * <h1>Adds a custom field (also called meta-data) to a specified post 
+	 * which could be of any post type</h1>
+	 * @param pid
+	 *            integer Post ID
+	 * @param meta
+	 * 			  WPCustomeField object with key and the new value
+	 */
+	public void updatePostMeta(int pid, WPCustomField meta, OnCustomFieldsListener listener){
+		postHandler.setOnCustomFieldsListener(listener);
+		
+		RequestParams reqParams = new RequestParams();
+		reqParams.add("post_id", Integer.toString(pid));
+		reqParams.add("meta_key", meta.getName());
+		reqParams.add("meta_value", meta.getValue());
+		
+		httpClient.get(BASE_URL + WPCustomField.UPDATE_POST_META, reqParams, postHandler);
+	}
+	
+	/**
+	 * <h1>Delete a custom field (also called meta-data) to a specified post 
+	 * which could be of any post type</h1>
+	 * @param pid
+	 *            integer Post ID
+	 * @param meta
+	 * 			  WPCustomeField object with key and a specific value.
+	 * 			  value is provided to differentiate between several 
+	 * 			  fields with the same key. If left blank, all fields 
+	 * 			  with the given key will be deleted.
+	 */
+	public void deletePostMeta(int pid, WPCustomField meta, OnCustomFieldsListener listener){
+		postHandler.setOnCustomFieldsListener(listener);
+		
+		RequestParams reqParams = new RequestParams();
+		reqParams.add("post_id", Integer.toString(pid));
+		reqParams.add("meta_key", meta.getName());
+		reqParams.add("meta_value", meta.getValue());
+		
+		httpClient.get(BASE_URL + WPCustomField.DELETE_POST_META, reqParams, postHandler);
+	}
+	
+	/**
+	 * <h1>Delete a custom field (also called meta-data) to a specified post 
+	 * which could be of any post type</h1>
+	 * @param pid
+	 *            integer Post ID
+	 * @param String
+	 * 			  The key of the field you will delete.
+	 */
+	public void deletePostMeta(int pid, String key, OnCustomFieldsListener listener){
+		postHandler.setOnCustomFieldsListener(listener);
+		
+		RequestParams reqParams = new RequestParams();
+		reqParams.add("post_id", Integer.toString(pid));
+		reqParams.add("meta_key", key);
+		
+		httpClient.get(BASE_URL + WPCustomField.DELETE_POST_META, reqParams, postHandler);
+	}
+	
+	/**
+	 * <h1>Returns an ArrayList with all custom fields of a particular post or page.</h1>
+	 * @param pid
+	 *            integer Post ID whose custom fields will be retrieved.
+	 * 
+	 * @return
+	 * 		 ArrayList<WPCustomData>
+	 * 
+	 * @see getPostCustomKeys, getPostCustomValues
+	 */
+	public void getPostCustom(int pid, OnCustomFieldsListener listener){
+		postHandler.setOnCustomFieldsListener(listener);
+		httpClient.get(BASE_URL + WPCustomField.GET_POST_CUSTOM, postHandler);
+	}
+	
+	/**
+	 * <h1>Returns an ArrayList containing the keys of all custom fields of a particular post or page.</h1>
+	 * @param pid
+	 *            integer Post ID whose custom fields will be retrieved.
+	 * 
+	 * @return
+	 * 		 ArrayList<WPCustomData>
+	 * 
+	 * @see getPostCustom, getPostCustomValues
+	 */
+	public void getPostCustomKeys(int pid, OnCustomFieldsListener listener){
+		postHandler.setOnCustomFieldsListener(listener);
+		httpClient.get(BASE_URL + WPCustomField.GET_POST_KEYS, postHandler);
+	}
+	
+	/**
+	 * <h1>This function is useful if you wish to access a custom field that is not unique, i.e. has more than 1 value associated with it.
+	 * </h1>
+	 * 
+	 * @param key
+	 * 			  The key whose values you want returned.
+	 * @param pid
+	 *            integer Post ID whose custom fields will be retrieved.
+	 * 
+	 * @return
+	 * 		 </h1>Returns an ArrayList<WPCustomData> containing the values of all custom fields of a particular post or page.</h2>
+	 * 
+	 * @see getPostCustomKeys, getPostCustom
+	 */
+	public void getPostCustomValues(String key, int pid, OnCustomFieldsListener listener){
+		postHandler.setOnCustomFieldsListener(listener);
+		httpClient.get(BASE_URL + WPCustomField.GET_POST_KEYS, postHandler);
+	}
+	
+	
 	// TODO: most probably its best to use the Params, rather than supplying an
 	// overloaded function for each case
 	public void getPosts(OnPostsReceivedListener listener) {
