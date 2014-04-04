@@ -70,7 +70,16 @@ public class WPPost {
 	private int commentsCount;
 	private boolean commentingStatus; // ("open" or "closed")
 
-	private ArrayList<BasicNameValuePair> customeFields;
+	private ArrayList<WPCustomField> customeFields;
+	
+	public ArrayList<WPCustomField> getCustomeFields() {
+		return customeFields;
+	}
+
+	public void setCustomeFields(ArrayList<WPCustomField> customeFields) {
+		this.customeFields = customeFields;
+	}
+
 	private String taxonomy; // ?? dont know what is this.
 
 	public WPPost() {
@@ -87,6 +96,7 @@ public class WPPost {
 		tags = new ArrayList<WPTag>();
 		attachments = new WPAtachment();
 		comments = new ArrayList<WPComment>();
+		customeFields = new ArrayList<WPCustomField>();
 
 		id = postBundle.getInt("id");
 		type = postBundle.getString("type");
@@ -102,7 +112,7 @@ public class WPPost {
 		postBundle.getParcelableArrayList("cats");
 		postBundle.getParcelableArrayList("tags");
 		postBundle.getParcelableArrayList("comments");
-
+		postBundle.getSerializable("custom_fields");
 		catsBundle = postBundle.getParcelableArrayList("cats");
 		for (int i = 0; i < catsBundle.size(); i++) {
 			categories.add(new WPCategory(catsBundle.get(i)));
@@ -175,7 +185,8 @@ public class WPPost {
 			categories = new ArrayList<WPCategory>();
 			tags = new ArrayList<WPTag>();
 			attachments = new WPAtachment();
-
+			customeFields = new ArrayList<WPCustomField>();
+			
 			if (data.getJSONArray("attachments") != null
 					&& data.getJSONArray("attachments").length() > 0
 					&& !data.getJSONArray("attachments").isNull(0)) {
@@ -227,7 +238,7 @@ public class WPPost {
 			while (iterator.hasNext()) {
 				   String key = (String)iterator.next();
 				   JSONArray customfield = customFields.getJSONArray(key);
-				   customeFields.add(new BasicNameValuePair(key, customfield.getString(0)));
+				   customeFields.add(new WPCustomField(key, customfield.getString(0)));
 				   
 				   Log.d(key, customfield.getString(0));
 				}  
@@ -414,7 +425,6 @@ public class WPPost {
 		ArrayList<Bundle> tagsData = new ArrayList<Bundle>();
 		// Bundle authorData = new Bundle();
 		ArrayList<Bundle> commentsData = new ArrayList<Bundle>();
-
 		// TODO: finish adding all of the
 		/*
 		 * 
@@ -464,11 +474,12 @@ public class WPPost {
 				&& i < post.getComments().size(); i++) {
 			commentsData.add(WPComment.getBundle(post.getComments().get(i)));
 		}
-
+		
 		postData.putParcelableArrayList("cats", catsData);
 		postData.putParcelableArrayList("tags", tagsData);
 		postData.putParcelableArrayList("comments", commentsData);
-
+		postData.putSerializable("custom_fields", post.getCustomeFields());
+		
 		ArrayList<String> atts = new ArrayList<String>();
 		atts.add(post.getAttachments().getFullImage());
 		atts.add(post.getAttachments().getThumbnailImage());

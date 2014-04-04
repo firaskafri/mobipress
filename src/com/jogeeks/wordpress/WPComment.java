@@ -144,7 +144,6 @@ public class WPComment {
 		commentBundle.putInt("parent", comment.getParent());
 
 		return commentBundle;
-
 	}
 
 	public int getPostId() {
