@@ -1,6 +1,7 @@
 package com.jogeeks.wordpress;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -9,6 +10,7 @@ import org.json.JSONObject;
 
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 
 public class WPPost {
 	public static final boolean COMMENT_OPEN = true;
@@ -72,7 +74,7 @@ public class WPPost {
 	private String taxonomy; // ?? dont know what is this.
 
 	public WPPost() {
-
+		
 	}
 
 	public WPPost(Bundle postBundle) {
@@ -215,6 +217,22 @@ public class WPPost {
 			tagsArray = data.getJSONArray("tags");
 			commentsArray = data.getJSONArray("comments");
 		} catch (JSONException e1) {
+			e1.printStackTrace();
+		}
+
+		Iterator<?> iterator;
+		try {
+			JSONObject customFields = data.getJSONObject("custom_fields");
+			iterator = customFields.keys();
+			while (iterator.hasNext()) {
+				   String key = (String)iterator.next();
+				   JSONArray customfield = customFields.getJSONArray(key);
+				   customeFields.add(new BasicNameValuePair(key, customfield.getString(0)));
+				   
+				   Log.d(key, customfield.getString(0));
+				}  
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
