@@ -235,12 +235,11 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	}
 	
 	/**
-	 * <h1>Returns an ArrayList containing the keys of all custom fields of a particular post or page.</h1>
 	 * @param pid
 	 *            integer Post ID whose custom fields will be retrieved.
 	 * 
 	 * @return
-	 * 		 ArrayList<WPCustomData>
+	 * 		 Returns an ArrayList<String> containing the keys of all custom fields of a particular post or page.
 	 * 
 	 * @see getPostCustom, getPostCustomValues
 	 */
@@ -259,7 +258,7 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	 *            integer Post ID whose custom fields will be retrieved.
 	 * 
 	 * @return
-	 * 		 </h1>Returns an ArrayList<WPCustomData> containing the values of all custom fields of a particular post or page.</h2>
+	 * 		 </h1>Returns an ArrayList<String> containing the values of all custom fields of a particular post or page.</h2>
 	 * 
 	 * @see getPostCustomKeys, getPostCustom
 	 */
@@ -279,15 +278,13 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	public void getPosts(WPQuery query, OnPostsReceivedListener listener) {
 		postHandler.setOnPostsReceivedListener(listener);
 		
-		RequestParams reqParams = new RequestParams();
-		reqParams.add(WPQuery.ORDER_BY, query.getOrderByQuery());
+		RequestParams reqParams = query.getOrderByQuery();
 		httpClient.get(BASE_URL + WPPost.POSTS_URL, reqParams, postHandler);
 	}
 	
 	public void getPosts(WPQuery query, int count, int page, OnPostsReceivedListener listener) {
 		postHandler.setOnPostsReceivedListener(listener);
-		RequestParams reqParams = new RequestParams();
-		reqParams.add(WPQuery.ORDER_BY, query.getOrderByQuery());
+		RequestParams reqParams = query.getOrderByQuery();
 		
 		httpClient.get(BASE_URL + WPPost.POSTS_URL + "?" + "count=" + count
 				+ "&" + "page=" + page, reqParams, postHandler);

@@ -73,10 +73,21 @@ public class WPPost {
 
 	private ArrayList<WPCustomField> customeFields;
 	
-	public ArrayList<WPCustomField> getCustomeFields() {
+	public ArrayList<WPCustomField> getCustomFields() {
 		return customeFields;
 	}
 
+	public WPCustomField getCustomField(String key){
+		int count = customeFields.size() - 1;
+		
+		for (int i = 0;i<=count;i++){
+			if(customeFields.get(i).getName().equals(key)){
+				return customeFields.get(i);
+			}
+		}
+		
+		return null;
+	}
 	public void setCustomeFields(ArrayList<WPCustomField> customeFields) {
 		this.customeFields = customeFields;
 	}
@@ -471,7 +482,7 @@ public class WPPost {
 		postData.putParcelableArrayList("cats", catsData);
 		postData.putParcelableArrayList("tags", tagsData);
 		postData.putParcelableArrayList("comments", commentsData);
-		postData.putSerializable("custom_fields", post.getCustomeFields());
+		postData.putSerializable("custom_fields", post.getCustomFields());
 		
 		ArrayList<String> atts = new ArrayList<String>();
 		atts.add(post.getAttachments().getFullImage());

@@ -179,13 +179,13 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 								.getJSONObject("custom_fields")));
 			} else if (controler.equalsIgnoreCase(WPCustomField.GET_POST_KEYS)) {
 				onCustomFieldsListener.OnCustomPostMetaKeysReceived(WPCustomField
-						.parseMetaResponse(response
-								.getJSONObject("custom_fields_keys")));
+						.parseCustomKeys(response
+								.getJSONArray("custom_fields_keys")));
 			} else if (controler
 					.equalsIgnoreCase(WPCustomField.GET_POST_VALUES)) {
 				onCustomFieldsListener.OnCustomPostMetaValuesReceived(WPCustomField
-						.parseMetaResponse(response
-								.getJSONObject("custom_fields_values")));
+						.parseCustomValues(response
+								.getJSONArray("custom_fields_values")));
 			} else if (controler
 					.equalsIgnoreCase(WPCustomField.UPDATE_POST_META)) {
 				onCustomFieldsListener.OnMetaDataUpdated();

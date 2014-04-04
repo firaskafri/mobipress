@@ -1,8 +1,11 @@
 package com.jogeeks.wordpress;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class WPQuery extends ArrayList<String>{
+import com.loopj.android.http.RequestParams;
+
+public class WPQuery extends RequestParams implements Serializable{
 	/**
 	 * 
 	 */
@@ -17,11 +20,11 @@ public class WPQuery extends ArrayList<String>{
 
 	//===================================================
 	final public static String ORDER_BY = "orderby";
-	private String orderBy;
+	RequestParams query = new RequestParams();
 	//===================================================
 	
 	public WPQuery(){
-		
+
 	}
 	
 	public void orderDescending(){
@@ -30,58 +33,60 @@ public class WPQuery extends ArrayList<String>{
 	
 	public void orderAscending(){
 		orderResult = true;
+		query.add(ORDER, ASC);
 	}
 	
-	public String getOrderByQuery(){
-		return orderBy;
+	public RequestParams getOrderByQuery(){
+		return query;
 	}
 	
 	public void orderByID(){
-		orderBy = OrderBy.ID;
+		query.add(ORDER_BY, OrderBy.ID);
 	}
 	
 	public void orderByAuthor(){
-		orderBy = OrderBy.AUTHOR;
+		query.add(ORDER_BY, OrderBy.AUTHOR);
 	}
 	
 	public void orderByTitle(){
-		orderBy = OrderBy.TITLE;
+		query.add(ORDER_BY, OrderBy.TITLE);
 	}
 	
 	public void orderByName(){
-		orderBy = OrderBy.NAME;
+		query.add(ORDER_BY, OrderBy.NAME);
 	}
 	
 	public void orderByDate(){
-		orderBy = OrderBy.DATE;
+		query.add(ORDER_BY, OrderBy.DATE);
 	}
 	
 	public void orderByModificationDate(){
-		orderBy = OrderBy.MODIFIED;
+		query.add(ORDER_BY, OrderBy.MODIFIED);
 	}
 	
 	public void orderByParent(){
-		orderBy = OrderBy.PARENT;
+		query.add(ORDER_BY, OrderBy.PARENT);
 	}
 	
 	public void orderByRandom(){
-		orderBy = OrderBy.RANDOM;
+		query.add(ORDER_BY, OrderBy.RANDOM);
 	}
 	
 	public void orderByCommentCount(){
-		orderBy = OrderBy.COMMENT_COUNT;
+		query.add(ORDER_BY, OrderBy.COMMENT_COUNT);
 	}
 	
 	public void orderByMenuOrder(){
-		orderBy = OrderBy.MENU_ORDER;
+		query.add(ORDER_BY, OrderBy.MENU_ORDER);
 	}
 	
-	public void orderByMetaValue(){
-		orderBy = OrderBy.META_VALUE;
+	public void orderByMetaValue(String key){
+		query.add(ORDER_BY, OrderBy.META_VALUE);
+		query.add("meta_key", key);
 	}
 	
 	public void orderByMetaValueNumber(){
-		orderBy = OrderBy.META_VALUE_NUM;
+		query.add(ORDER_BY, OrderBy.META_VALUE_NUM);
 	}
 	
 	private class OrderBy{
