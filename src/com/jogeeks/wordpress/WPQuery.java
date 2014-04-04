@@ -1,17 +1,20 @@
 package com.jogeeks.wordpress;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.util.ArrayList;
 
 import com.loopj.android.http.RequestParams;
 
 public class WPQuery extends RequestParams implements Serializable{
+	private static final long serialVersionUID = 1L;
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 7758657104483782419L;
 	
-	//http://codex.wordpress.org/Class_Reference/WP_Query#Parameters
+	//http://codex.wordpress.org/Class_Reference/WP_this#Parameters
 	//===================================================
 	final public static String ORDER = "order";
 	final public static String DESC = "ASC";
@@ -20,7 +23,6 @@ public class WPQuery extends RequestParams implements Serializable{
 
 	//===================================================
 	final public static String ORDER_BY = "orderby";
-	RequestParams query = new RequestParams();
 	//===================================================
 	
 	public WPQuery(){
@@ -33,62 +35,80 @@ public class WPQuery extends RequestParams implements Serializable{
 	
 	public void orderAscending(){
 		orderResult = true;
-		query.add(ORDER, ASC);
+		add(ORDER, ASC);
 	}
 	
-	public RequestParams getOrderByQuery(){
-		return query;
+	public RequestParams getQuery(){
+		return this;
 	}
 	
 	public void orderByID(){
-		query.add(ORDER_BY, OrderBy.ID);
+		this.add(ORDER_BY, OrderBy.ID);
 	}
 	
 	public void orderByAuthor(){
-		query.add(ORDER_BY, OrderBy.AUTHOR);
+		this.add(ORDER_BY, OrderBy.AUTHOR);
 	}
 	
 	public void orderByTitle(){
-		query.add(ORDER_BY, OrderBy.TITLE);
+		this.add(ORDER_BY, OrderBy.TITLE);
 	}
 	
 	public void orderByName(){
-		query.add(ORDER_BY, OrderBy.NAME);
+		this.add(ORDER_BY, OrderBy.NAME);
 	}
 	
 	public void orderByDate(){
-		query.add(ORDER_BY, OrderBy.DATE);
+		this.add(ORDER_BY, OrderBy.DATE);
 	}
 	
 	public void orderByModificationDate(){
-		query.add(ORDER_BY, OrderBy.MODIFIED);
+		this.add(ORDER_BY, OrderBy.MODIFIED);
 	}
 	
 	public void orderByParent(){
-		query.add(ORDER_BY, OrderBy.PARENT);
+		this.add(ORDER_BY, OrderBy.PARENT);
 	}
 	
 	public void orderByRandom(){
-		query.add(ORDER_BY, OrderBy.RANDOM);
+		this.add(ORDER_BY, OrderBy.RANDOM);
 	}
 	
 	public void orderByCommentCount(){
-		query.add(ORDER_BY, OrderBy.COMMENT_COUNT);
+		this.add(ORDER_BY, OrderBy.COMMENT_COUNT);
 	}
 	
 	public void orderByMenuOrder(){
-		query.add(ORDER_BY, OrderBy.MENU_ORDER);
+		this.add(ORDER_BY, OrderBy.MENU_ORDER);
 	}
 	
 	public void orderByMetaValue(String key){
-		query.add(ORDER_BY, OrderBy.META_VALUE);
-		query.add("meta_key", key);
+		this.add(ORDER_BY, OrderBy.META_VALUE);
+		this.add("meta_key", key);
 	}
 	
 	public void orderByMetaValueNumber(){
-		query.add(ORDER_BY, OrderBy.META_VALUE_NUM);
+		this.add(ORDER_BY, OrderBy.META_VALUE_NUM);
 	}
 	
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		for(int i = 0; i < this.getParamsList().size();i++){
+			out.writeChars(this.getParamsList().get(i).getName());
+			out.writeChars(this.getParamsList().get(i).getValue());
+		}
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException,
+			ClassNotFoundException {
+		for(int i = 0; i < this.getParamsList().size();i++){
+			add(in.readLine(), in.readLine());
+		}
+	}
+
+	private void readObjectNoData() throws ObjectStreamException {
+		// nothing to do
+	}
+
 	private class OrderBy{
 		final protected static String NONE = "none";
 		final protected static String ID = "ID";

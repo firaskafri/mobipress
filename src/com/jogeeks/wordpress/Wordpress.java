@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 
+import org.apache.http.NameValuePair;
 import org.apache.http.client.params.ClientPNames;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -278,13 +279,13 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	public void getPosts(WPQuery query, OnPostsReceivedListener listener) {
 		postHandler.setOnPostsReceivedListener(listener);
 		
-		RequestParams reqParams = query.getOrderByQuery();
+		RequestParams reqParams = query.getQuery();
 		httpClient.get(BASE_URL + WPPost.POSTS_URL, reqParams, postHandler);
 	}
 	
 	public void getPosts(WPQuery query, int count, int page, OnPostsReceivedListener listener) {
 		postHandler.setOnPostsReceivedListener(listener);
-		RequestParams reqParams = query.getOrderByQuery();
+		RequestParams reqParams = query.getQuery();
 		
 		httpClient.get(BASE_URL + WPPost.POSTS_URL + "?" + "count=" + count
 				+ "&" + "page=" + page, reqParams, postHandler);
