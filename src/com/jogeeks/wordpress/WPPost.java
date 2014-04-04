@@ -2,6 +2,7 @@ package com.jogeeks.wordpress;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -518,6 +519,19 @@ public class WPPost {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	
+	protected static List<WPPost> parsePosts(JSONObject response) throws JSONException {
+		JSONObject wpPosts = response;
+		int count = wpPosts.getJSONArray("posts").length();
+		List<WPPost> posts = new ArrayList<WPPost>();
+
+		for (int i = 0; i < count; i++) {
+			JSONObject jObj = wpPosts.getJSONArray("posts").getJSONObject(i);
+			posts.add(new WPPost(jObj));
+		}
+
+		return posts;
 	}
 
 }

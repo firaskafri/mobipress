@@ -10,7 +10,14 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 public class WPCustomField implements Serializable, NameValuePair{
+	public static final String ADD_POST_META = "meta/add_post_meta/";
+	public static final String UPDATE_POST_META = "meta/update_post_meta/";
+	public static final String DELETE_POST_META = "meta/delete_post_meta/";
+	public static final String GET_POST_CUSTOM = "meta/get_post_custom/";
+	public static final String GET_POST_KEYS = "meta/get_post_custom_keys/";
+	public static final String GET_POST_VALUES = "meta/get_post_custom_values/";
 
+	
 	/**
 	 * 
 	 */

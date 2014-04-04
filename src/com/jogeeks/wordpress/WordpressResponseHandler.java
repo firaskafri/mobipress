@@ -16,6 +16,7 @@ import com.jogeeks.wordpress.listeners.OnCommentSubmittedListener;
 import com.jogeeks.wordpress.listeners.OnCommentsReceivedListener;
 import com.jogeeks.wordpress.listeners.OnConnectionFailureListener;
 import com.jogeeks.wordpress.listeners.OnCreatePostListener;
+import com.jogeeks.wordpress.listeners.OnCustomFieldsListener;
 import com.jogeeks.wordpress.listeners.OnPostReceivedListener;
 import com.jogeeks.wordpress.listeners.OnPostsReceivedListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -29,6 +30,11 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 	private OnCommentSubmittedListener onCommentSubmittedListener;
 	private OnCreatePostListener onCreatePostListener;
 	private OnConnectionFailureListener onConnectionFailureListener;
+	private OnCustomFieldsListener onCustomFieldsListener;
+
+	public void setOnCustomFieldsListener(OnCustomFieldsListener ocfl) {
+		onCustomFieldsListener = ocfl;
+	}
 
 	public void setOnConnectionFailureListener(OnConnectionFailureListener ocfl) {
 		onConnectionFailureListener = ocfl;
@@ -76,48 +82,48 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 			if (controler.equalsIgnoreCase(WPPost.POSTS_URL)) {
 				if (response.getInt("count") != 0) {
 					onPostsReceivedListener.onPostsReceived(
-							parsePosts(response), parseResponseMeta(response));
+							WPPost.parsePosts(response), Wordpress.parseResponseMeta(response));
 				} else {
 					onPostsReceivedListener.onNoPosts();
 				}
 			} else if (controler.equalsIgnoreCase(WPPost.DATE_POSTS_URL)) {
 				if (response.getInt("count") != 0) {
 					onPostsReceivedListener.onPostsReceived(
-							parsePosts(response), parseResponseMeta(response));
+							WPPost.parsePosts(response), Wordpress.parseResponseMeta(response));
 				} else {
 					onPostsReceivedListener.onNoPosts();
 				}
 			} else if (controler.equalsIgnoreCase(WPPost.RECENT_POSTS_URL)) {
 				if (response.getInt("count") != 0) {
 					onPostsReceivedListener.onPostsReceived(
-							parsePosts(response), parseResponseMeta(response));
+							WPPost.parsePosts(response), Wordpress.parseResponseMeta(response));
 				} else {
 					onPostsReceivedListener.onNoPosts();
 				}
 			} else if (controler.equalsIgnoreCase(WPPost.SEARCH_POSTS_URL)) {
 				if (response.getInt("count") != 0) {
 					onPostsReceivedListener.onPostsReceived(
-							parsePosts(response), parseResponseMeta(response));
+							WPPost.parsePosts(response), Wordpress.parseResponseMeta(response));
 				} else {
 					onPostsReceivedListener.onNoPosts();
 				}
 			} else if (controler.equalsIgnoreCase(WPPost.CATEGORY_POSTS_URL)) {
 				if (response.getInt("count") != 0) {
 					onPostsReceivedListener.onPostsReceived(
-							parsePosts(response), parseResponseMeta(response));
+							WPPost.parsePosts(response), Wordpress.parseResponseMeta(response));
 				} else {
 					onPostsReceivedListener.onNoPosts();
 				}
 			} else if (controler.equalsIgnoreCase(WPPost.AUTHOR_POSTS_URL)) {
 				if (response.getInt("count") != 0) {
 					onPostsReceivedListener.onPostsReceived(
-							parsePosts(response), parseResponseMeta(response));
+							WPPost.parsePosts(response), Wordpress.parseResponseMeta(response));
 				} else {
 					onPostsReceivedListener.onNoPosts();
 				}
 			} else if (controler.equalsIgnoreCase(WPPost.TAG_POSTS_URL)) {
-				onPostsReceivedListener.onPostsReceived(parsePosts(response),
-						parseResponseMeta(response));
+				onPostsReceivedListener.onPostsReceived(WPPost.parsePosts(response),
+						Wordpress.parseResponseMeta(response));
 				/***** Post controller *****/
 			} else if (controler.equalsIgnoreCase(WPPost.CREATE_POST_URL)) {
 				onCreatePostListener.OnPostCreated(new WPPost(response
@@ -139,7 +145,7 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 			}
 			/***** Page controller *****/
 			else if (controler.equalsIgnoreCase(Wordpress.NONCE_URL + "/")) {
-				onNonceRecieved(parseNonce(response), "create_post");
+				onNonceRecieved(Wordpress.parseNonce(response), "create_post");
 			}
 			/***** Comments controller *****/
 			else if (controler.equalsIgnoreCase(WPComment.SUBMIT_COMMENT_URL)) {
@@ -151,7 +157,24 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 				/***** Categories controller *****/
 			} else if (controler.equalsIgnoreCase(WPCategory.CATEGORY_INDEX)) {
 				onCategoriesListener
-						.onCategoriesReceived(parseCategories(response));
+						.onCategoriesReceived(WPCategory.parseCategories(response));
+				/***** Post custom fields controller *****/
+			} else if (controler.equalsIgnoreCase(WPCustomField.ADD_POST_META)) {
+				onCustomFieldsListener.OnMetaDataAdded();
+			} else if (controler
+					.equalsIgnoreCase(WPCustomField.DELETE_POST_META)) {
+				onCustomFieldsListener.OnMetaDataDeleted();
+			} else if (controler
+					.equalsIgnoreCase(WPCustomField.GET_POST_CUSTOM)) {
+				onCustomFieldsListener.OnCustomPostMetaValuesReceived();
+			} else if (controler.equalsIgnoreCase(WPCustomField.GET_POST_KEYS)) {
+				onCustomFieldsListener.OnCustomPostMetaKeysReceived();
+			} else if (controler
+					.equalsIgnoreCase(WPCustomField.GET_POST_VALUES)) {
+				onCustomFieldsListener.OnCustomPostMetaValuesReceived();
+			} else if (controler
+					.equalsIgnoreCase(WPCustomField.UPDATE_POST_META)) {
+				onCustomFieldsListener.OnMetaDataUpdated();
 			}
 
 		} catch (JSONException e) {
@@ -171,92 +194,6 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 		//
 	}
 
-	public void onCommentRecieved(WPComment posts) {
-		//
-	}
-
-	public void onCommentsRecieved(List<WPComment> comments) {
-		//
-	}
-
-	public void onCommentSubmited(WPComment comment) {
-		//
-	}
-
-	public void onCommentReported(WPComment comment) {
-		//
-	}
-
-	public void onUserUpdated(WPUser user) {
-		//
-	}
-
-	public void onUsersRecieved(List<WPUser> users) {
-		//
-	}
-
-	public void onCategoriesReceived(ArrayList<WPCategory> cats) {
-		//
-	}
-
-	protected ArrayList<WPCategory> parseCategories(JSONObject response)
-			throws JSONException {
-		JSONObject wpCats = response;
-		int count = wpCats.getJSONArray("categories").length();
-		ArrayList<WPCategory> cats = new ArrayList<WPCategory>();
-
-		for (int i = 0; i < count; i++) {
-			JSONObject jObj = wpCats.getJSONArray("categories")
-					.getJSONObject(i);
-			cats.add(new WPCategory(jObj));
-		}
-
-		return cats;
-	}
-
-	protected List<WPPost> parsePosts(JSONObject response) throws JSONException {
-		JSONObject wpPosts = response;
-		int count = wpPosts.getJSONArray("posts").length();
-		List<WPPost> posts = new ArrayList<WPPost>();
-
-		for (int i = 0; i < count; i++) {
-			JSONObject jObj = wpPosts.getJSONArray("posts").getJSONObject(i);
-			posts.add(new WPPost(jObj));
-		}
-
-		return posts;
-	}
-
-	protected HashMap<String, String> parseResponseMeta(JSONObject response)
-			throws JSONException {
-		int count = 0, countTotal = 0, pages = 0;
-		count = response.getInt("count");
-
-		// TODO fix from server side
-		// count_total is not included in getByCategory response and when the
-		// response is only one page
-		try {
-			countTotal = response.getInt("count_total");
-		} catch (JSONException e) {
-
-		}
-		pages = response.getInt("pages");
-
-		HashMap<String, String> responseMeta = new HashMap<String, String>();
-		responseMeta.put("count", Integer.toString(count));
-		responseMeta.put("count_total", Integer.toString(countTotal));
-		responseMeta.put("pages", Integer.toString(pages));
-
-		return responseMeta;
-	}
-
-	protected String parseNonce(JSONObject response) throws JSONException {
-		String nonce;
-		nonce = response.getString("nonce");
-		Log.d("CreatePostNonceResponse", nonce);
-
-		return nonce;
-	}
 
 	@Override
 	public void onFailure(Throwable arg0, JSONObject arg1) {

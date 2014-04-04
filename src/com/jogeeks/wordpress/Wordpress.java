@@ -2,6 +2,7 @@ package com.jogeeks.wordpress;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
 
 import org.apache.http.client.params.ClientPNames;
 import org.json.JSONException;
@@ -686,5 +687,36 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	public void OnLoginStart() {
 		// TODO Auto-generated method stub
 
+	}
+	
+	protected static String parseNonce(JSONObject response) throws JSONException {
+		String nonce;
+		nonce = response.getString("nonce");
+		Log.d("CreatePostNonceResponse", nonce);
+
+		return nonce;
+	}
+	
+	protected static HashMap<String, String> parseResponseMeta(JSONObject response)
+			throws JSONException {
+		int count = 0, countTotal = 0, pages = 0;
+		count = response.getInt("count");
+
+		// TODO fix from server side
+		// count_total is not included in getByCategory response and when the
+		// response is only one page
+		try {
+			countTotal = response.getInt("count_total");
+		} catch (JSONException e) {
+
+		}
+		pages = response.getInt("pages");
+
+		HashMap<String, String> responseMeta = new HashMap<String, String>();
+		responseMeta.put("count", Integer.toString(count));
+		responseMeta.put("count_total", Integer.toString(countTotal));
+		responseMeta.put("pages", Integer.toString(pages));
+
+		return responseMeta;
 	}
 }

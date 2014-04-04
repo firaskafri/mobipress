@@ -1,6 +1,7 @@
 package com.jogeeks.wordpress;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -112,6 +113,21 @@ public class WPCategory implements Serializable {
 		catBundle.putInt("post_count", cat.getPostCount());
 
 		return catBundle;
+	}
+	
+	protected static ArrayList<WPCategory> parseCategories(JSONObject response)
+			throws JSONException {
+		JSONObject wpCats = response;
+		int count = wpCats.getJSONArray("categories").length();
+		ArrayList<WPCategory> cats = new ArrayList<WPCategory>();
+
+		for (int i = 0; i < count; i++) {
+			JSONObject jObj = wpCats.getJSONArray("categories")
+					.getJSONObject(i);
+			cats.add(new WPCategory(jObj));
+		}
+
+		return cats;
 	}
 
 }
