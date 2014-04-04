@@ -82,47 +82,54 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 			if (controler.equalsIgnoreCase(WPPost.POSTS_URL)) {
 				if (response.getInt("count") != 0) {
 					onPostsReceivedListener.onPostsReceived(
-							WPPost.parsePosts(response), Wordpress.parseResponseMeta(response));
+							WPPost.parsePosts(response),
+							Wordpress.parseResponseMeta(response));
 				} else {
 					onPostsReceivedListener.onNoPosts();
 				}
 			} else if (controler.equalsIgnoreCase(WPPost.DATE_POSTS_URL)) {
 				if (response.getInt("count") != 0) {
 					onPostsReceivedListener.onPostsReceived(
-							WPPost.parsePosts(response), Wordpress.parseResponseMeta(response));
+							WPPost.parsePosts(response),
+							Wordpress.parseResponseMeta(response));
 				} else {
 					onPostsReceivedListener.onNoPosts();
 				}
 			} else if (controler.equalsIgnoreCase(WPPost.RECENT_POSTS_URL)) {
 				if (response.getInt("count") != 0) {
 					onPostsReceivedListener.onPostsReceived(
-							WPPost.parsePosts(response), Wordpress.parseResponseMeta(response));
+							WPPost.parsePosts(response),
+							Wordpress.parseResponseMeta(response));
 				} else {
 					onPostsReceivedListener.onNoPosts();
 				}
 			} else if (controler.equalsIgnoreCase(WPPost.SEARCH_POSTS_URL)) {
 				if (response.getInt("count") != 0) {
 					onPostsReceivedListener.onPostsReceived(
-							WPPost.parsePosts(response), Wordpress.parseResponseMeta(response));
+							WPPost.parsePosts(response),
+							Wordpress.parseResponseMeta(response));
 				} else {
 					onPostsReceivedListener.onNoPosts();
 				}
 			} else if (controler.equalsIgnoreCase(WPPost.CATEGORY_POSTS_URL)) {
 				if (response.getInt("count") != 0) {
 					onPostsReceivedListener.onPostsReceived(
-							WPPost.parsePosts(response), Wordpress.parseResponseMeta(response));
+							WPPost.parsePosts(response),
+							Wordpress.parseResponseMeta(response));
 				} else {
 					onPostsReceivedListener.onNoPosts();
 				}
 			} else if (controler.equalsIgnoreCase(WPPost.AUTHOR_POSTS_URL)) {
 				if (response.getInt("count") != 0) {
 					onPostsReceivedListener.onPostsReceived(
-							WPPost.parsePosts(response), Wordpress.parseResponseMeta(response));
+							WPPost.parsePosts(response),
+							Wordpress.parseResponseMeta(response));
 				} else {
 					onPostsReceivedListener.onNoPosts();
 				}
 			} else if (controler.equalsIgnoreCase(WPPost.TAG_POSTS_URL)) {
-				onPostsReceivedListener.onPostsReceived(WPPost.parsePosts(response),
+				onPostsReceivedListener.onPostsReceived(
+						WPPost.parsePosts(response),
 						Wordpress.parseResponseMeta(response));
 				/***** Post controller *****/
 			} else if (controler.equalsIgnoreCase(WPPost.CREATE_POST_URL)) {
@@ -156,9 +163,10 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 
 				/***** Categories controller *****/
 			} else if (controler.equalsIgnoreCase(WPCategory.CATEGORY_INDEX)) {
-				onCategoriesListener
-						.onCategoriesReceived(WPCategory.parseCategories(response));
+				onCategoriesListener.onCategoriesReceived(WPCategory
+						.parseCategories(response));
 				/***** Post custom fields controller *****/
+				// TODO handle response
 			} else if (controler.equalsIgnoreCase(WPCustomField.ADD_POST_META)) {
 				onCustomFieldsListener.OnMetaDataAdded();
 			} else if (controler
@@ -166,12 +174,18 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 				onCustomFieldsListener.OnMetaDataDeleted();
 			} else if (controler
 					.equalsIgnoreCase(WPCustomField.GET_POST_CUSTOM)) {
-				onCustomFieldsListener.OnCustomPostMetaValuesReceived();
+				onCustomFieldsListener.OnCustomPostMetaReceived(WPCustomField
+						.parseMetaResponse(response
+								.getJSONObject("custom_fields")));
 			} else if (controler.equalsIgnoreCase(WPCustomField.GET_POST_KEYS)) {
-				onCustomFieldsListener.OnCustomPostMetaKeysReceived();
+				onCustomFieldsListener.OnCustomPostMetaKeysReceived(WPCustomField
+						.parseMetaResponse(response
+								.getJSONObject("custom_fields_keys")));
 			} else if (controler
 					.equalsIgnoreCase(WPCustomField.GET_POST_VALUES)) {
-				onCustomFieldsListener.OnCustomPostMetaValuesReceived();
+				onCustomFieldsListener.OnCustomPostMetaValuesReceived(WPCustomField
+						.parseMetaResponse(response
+								.getJSONObject("custom_fields_values")));
 			} else if (controler
 					.equalsIgnoreCase(WPCustomField.UPDATE_POST_META)) {
 				onCustomFieldsListener.OnMetaDataUpdated();
@@ -193,7 +207,6 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 	public void onPostDeleted() {
 		//
 	}
-
 
 	@Override
 	public void onFailure(Throwable arg0, JSONObject arg1) {
