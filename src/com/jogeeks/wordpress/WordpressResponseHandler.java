@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+import com.jogeeks.wordpress.listeners.OnApiRequestListener;
 import com.jogeeks.wordpress.listeners.OnCategoriesListener;
 import com.jogeeks.wordpress.listeners.OnCommentSubmittedListener;
 import com.jogeeks.wordpress.listeners.OnCommentsReceivedListener;
@@ -31,7 +32,12 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 	private OnCreatePostListener onCreatePostListener;
 	private OnConnectionFailureListener onConnectionFailureListener;
 	private OnCustomFieldsListener onCustomFieldsListener;
+	private OnApiRequestListener onApiRequestListener;
 
+	public void setOnApiRequestListener(OnApiRequestListener oar) {
+		onApiRequestListener = oar;
+	}
+	
 	public void setOnCustomFieldsListener(OnCustomFieldsListener ocfl) {
 		onCustomFieldsListener = ocfl;
 	}
@@ -189,6 +195,10 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 			} else if (controler
 					.equalsIgnoreCase(WPCustomField.UPDATE_POST_META)) {
 				onCustomFieldsListener.OnMetaDataUpdated();
+				
+				//Custom API request
+			} else{
+				onApiRequestListener.OnApiRequestResponse(response);
 			}
 
 		} catch (JSONException e) {

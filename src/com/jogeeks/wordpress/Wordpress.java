@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.jogeeks.internet.Communication;
 import com.jogeeks.mobipress.R;
+import com.jogeeks.wordpress.listeners.OnApiRequestListener;
 import com.jogeeks.wordpress.listeners.OnCategoriesListener;
 import com.jogeeks.wordpress.listeners.OnCommentSubmittedListener;
 import com.jogeeks.wordpress.listeners.OnCommentsReceivedListener;
@@ -61,6 +62,7 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	private OnConnectionFailureListener onConnectionFailureListener;
 	private WordpressResponseHandler<WPPost> postHandler;
 	private WordpressResponseHandler<WPComment> commentHandler;
+	private WordpressResponseHandler<JSONObject> apiRequestHandler;
 
 	private AsyncHttpClient httpClient = new AsyncHttpClient();
 
@@ -484,7 +486,46 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 					}
 				});
 	}
+	
+	/**
+	 * <h1>This function is useful if you wish to use a custom controller on your server
+	 * </h1>
+	 * 
+	 * @param controller
+	 * 			  The controller whose responsable of handling this request.
+	 * @param method
+	 *            The specific method whose going to process this request
+	 * 
+	 * @return
+	 * 		 </h1>Returns a JSONObject of response</h2>
+	 * 
+	 */
+	public void apiRequest(String controller, String method, OnApiRequestListener listener){
+		apiRequestHandler = new WordpressResponseHandler<JSONObject>();
+		apiRequestHandler.setOnApiRequestListener(listener);
+		httpClient.get(BASE_URL + controller + "/" + method, apiRequestHandler);
+	}
 
+	/**
+	 * <h1>This function is useful if you wish to use a custom controller on your server
+	 * </h1>
+	 * 
+	 * @param controller
+	 * 			  The controller whose responsable of handling this request.
+	 * @param method
+	 *            The specific method whose going to process this request
+	 * @param params
+	 *            if your request needs any request params, if it doesn't, please user the overloaded method.
+	 * @return
+	 * 		 </h1>Returns a JSONObject of response</h2>
+	 * 
+	 */
+	public void apiRequest(String controller, String method, RequestParams params, OnApiRequestListener listener){
+		apiRequestHandler = new WordpressResponseHandler<JSONObject>();
+		apiRequestHandler.setOnApiRequestListener(listener);
+		httpClient.get(BASE_URL + controller + "/" + method, params, apiRequestHandler);
+	}
+	
 	public void updatePost(final WPPost post, int userId, final String status,
 			final WordpressResponseHandler<WPPost> responseHandler) {
 		// TODO: add the cookie
