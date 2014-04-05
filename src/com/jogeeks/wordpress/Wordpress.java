@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 
+import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.params.ClientPNames;
 import org.json.JSONException;
@@ -28,6 +29,7 @@ import com.jogeeks.wordpress.listeners.OnPostReceivedListener;
 import com.jogeeks.wordpress.listeners.OnPostsReceivedListener;
 import com.jogeeks.wordpress.listeners.OnRegisterListener;
 import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 public class Wordpress implements OnLoginListener, OnRegisterListener {
@@ -67,8 +69,9 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	private AsyncHttpClient httpClient = new AsyncHttpClient();
 
 	/**
-	 * <h1>WordPress constructor. After initializing this constructor, you can call
-	 * several core methods: login(Bundle userData), register(Bundle userData)</h1>
+	 * <h1>WordPress constructor. After initializing this constructor, you can
+	 * call several core methods: login(Bundle userData), register(Bundle
+	 * userData)</h1>
 	 * 
 	 * @param context
 	 *            Pass the application's context to get this initialized.
@@ -93,10 +96,10 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	 *            Pass a bundle with two String values that represent user
 	 *            credentials "username", "password"
 	 */
-	public void login(Bundle userData) {
+	public void login(Bundle userData, OnLoginListener listener) {
 		username = userData.getString("username");
 		password = userData.getString("password");
-		new WPLogin(username, password);
+		new WPLogin(username, password, listener);
 	}
 
 	/**
@@ -115,162 +118,178 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	}
 
 	/**
-	 * <h1>Adds a custom field (also called meta-data) to a specified post
-	 * which could be of any post type</h1>
+	 * <h1>Adds a custom field (also called meta-data) to a specified post which
+	 * could be of any post type</h1>
+	 * 
 	 * @param pid
 	 *            integer Post ID
 	 * @param meta
-	 * 			  WPCustomeField object
-	 * @param unique 
-	 * 			  When set to true, the custom field will 
-	 * 			  not be added if the given key already exists among 
-	 * 			  custom fields of the specified post.
+	 *            WPCustomeField object
+	 * @param unique
+	 *            When set to true, the custom field will not be added if the
+	 *            given key already exists among custom fields of the specified
+	 *            post.
 	 */
-	public void addPostMeta(int pid, WPCustomField meta, boolean unique, OnCustomFieldsListener listener){
+	public void addPostMeta(int pid, WPCustomField meta, boolean unique,
+			OnCustomFieldsListener listener) {
 		postHandler.setOnCustomFieldsListener(listener);
-		
+
 		RequestParams reqParams = new RequestParams();
 		reqParams.add("post_id", Integer.toString(pid));
 		reqParams.add("meta_key", meta.getName());
 		reqParams.add("meta_value", meta.getValue());
 		reqParams.add("unique", Boolean.toString(unique));
-		
-		httpClient.get(BASE_URL + WPCustomField.ADD_POST_META, reqParams, postHandler);
+
+		httpClient.get(BASE_URL + WPCustomField.ADD_POST_META, reqParams,
+				postHandler);
 	}
-	
+
 	/**
-	 * <h1>Adds a custom field (also called meta-data) to a specified post
-	 * which could be of any post type</h1>
+	 * <h1>Adds a custom field (also called meta-data) to a specified post which
+	 * could be of any post type</h1>
+	 * 
 	 * @param pid
 	 *            integer Post ID
 	 * @param meta
-	 * 			  WPCustomeField object with key and the new value
-	 * @param previousValue 
-	 * 			  The old value of the custom field you wish to change. 
-	 * 			  This is to differentiate between several fields with the same key. 
-	 * 			  If omitted, and there are multiple rows for this post and meta key, 
-	 * 			  all meta values will be updated.
+	 *            WPCustomeField object with key and the new value
+	 * @param previousValue
+	 *            The old value of the custom field you wish to change. This is
+	 *            to differentiate between several fields with the same key. If
+	 *            omitted, and there are multiple rows for this post and meta
+	 *            key, all meta values will be updated.
 	 */
-	public void updatePostMeta(int pid, WPCustomField meta, String previousValue, OnCustomFieldsListener listener){
+	public void updatePostMeta(int pid, WPCustomField meta,
+			String previousValue, OnCustomFieldsListener listener) {
 		postHandler.setOnCustomFieldsListener(listener);
-		
+
 		RequestParams reqParams = new RequestParams();
 		reqParams.add("post_id", Integer.toString(pid));
 		reqParams.add("meta_key", meta.getName());
 		reqParams.add("meta_value", meta.getValue());
 		reqParams.add("prev_value", previousValue);
-		
-		httpClient.get(BASE_URL + WPCustomField.UPDATE_POST_META, reqParams, postHandler);
+
+		httpClient.get(BASE_URL + WPCustomField.UPDATE_POST_META, reqParams,
+				postHandler);
 	}
-	
+
 	/**
-	 * <h1>Adds a custom field (also called meta-data) to a specified post 
-	 * which could be of any post type</h1>
+	 * <h1>Adds a custom field (also called meta-data) to a specified post which
+	 * could be of any post type</h1>
+	 * 
 	 * @param pid
 	 *            integer Post ID
 	 * @param meta
-	 * 			  WPCustomeField object with key and the new value
+	 *            WPCustomeField object with key and the new value
 	 */
-	public void updatePostMeta(int pid, WPCustomField meta, OnCustomFieldsListener listener){
+	public void updatePostMeta(int pid, WPCustomField meta,
+			OnCustomFieldsListener listener) {
 		postHandler.setOnCustomFieldsListener(listener);
-		
+
 		RequestParams reqParams = new RequestParams();
 		reqParams.add("post_id", Integer.toString(pid));
 		reqParams.add("meta_key", meta.getName());
 		reqParams.add("meta_value", meta.getValue());
-		
-		httpClient.get(BASE_URL + WPCustomField.UPDATE_POST_META, reqParams, postHandler);
+
+		httpClient.get(BASE_URL + WPCustomField.UPDATE_POST_META, reqParams,
+				postHandler);
 	}
-	
+
 	/**
-	 * <h1>Delete a custom field (also called meta-data) to a specified post 
+	 * <h1>Delete a custom field (also called meta-data) to a specified post
 	 * which could be of any post type</h1>
+	 * 
 	 * @param pid
 	 *            integer Post ID
 	 * @param meta
-	 * 			  WPCustomeField object with key and a specific value.
-	 * 			  value is provided to differentiate between several 
-	 * 			  fields with the same key. If left blank, all fields 
-	 * 			  with the given key will be deleted.
+	 *            WPCustomeField object with key and a specific value. value is
+	 *            provided to differentiate between several fields with the same
+	 *            key. If left blank, all fields with the given key will be
+	 *            deleted.
 	 */
-	public void deletePostMeta(int pid, WPCustomField meta, OnCustomFieldsListener listener){
+	public void deletePostMeta(int pid, WPCustomField meta,
+			OnCustomFieldsListener listener) {
 		postHandler.setOnCustomFieldsListener(listener);
-		
+
 		RequestParams reqParams = new RequestParams();
 		reqParams.add("post_id", Integer.toString(pid));
 		reqParams.add("meta_key", meta.getName());
 		reqParams.add("meta_value", meta.getValue());
-		
-		httpClient.get(BASE_URL + WPCustomField.DELETE_POST_META, reqParams, postHandler);
+
+		httpClient.get(BASE_URL + WPCustomField.DELETE_POST_META, reqParams,
+				postHandler);
 	}
-	
+
 	/**
-	 * <h1>Delete a custom field (also called meta-data) to a specified post 
+	 * <h1>Delete a custom field (also called meta-data) to a specified post
 	 * which could be of any post type</h1>
+	 * 
 	 * @param pid
 	 *            integer Post ID
 	 * @param String
-	 * 			  The key of the field you will delete.
+	 *            The key of the field you will delete.
 	 */
-	public void deletePostMeta(int pid, String key, OnCustomFieldsListener listener){
+	public void deletePostMeta(int pid, String key,
+			OnCustomFieldsListener listener) {
 		postHandler.setOnCustomFieldsListener(listener);
-		
+
 		RequestParams reqParams = new RequestParams();
 		reqParams.add("post_id", Integer.toString(pid));
 		reqParams.add("meta_key", key);
-		
-		httpClient.get(BASE_URL + WPCustomField.DELETE_POST_META, reqParams, postHandler);
+
+		httpClient.get(BASE_URL + WPCustomField.DELETE_POST_META, reqParams,
+				postHandler);
 	}
-	
+
 	/**
-	 * <h1>Returns an ArrayList with all custom fields of a particular post or page.</h1>
+	 * <h1>Returns an ArrayList with all custom fields of a particular post or
+	 * page.</h1>
+	 * 
 	 * @param pid
 	 *            integer Post ID whose custom fields will be retrieved.
 	 * 
-	 * @return
-	 * 		 ArrayList<WPCustomData>
+	 * @return ArrayList<WPCustomData>
 	 * 
 	 * @see getPostCustomKeys, getPostCustomValues
 	 */
-	public void getPostCustom(int pid, OnCustomFieldsListener listener){
+	public void getPostCustom(int pid, OnCustomFieldsListener listener) {
 		postHandler.setOnCustomFieldsListener(listener);
 		httpClient.get(BASE_URL + WPCustomField.GET_POST_CUSTOM, postHandler);
 	}
-	
+
 	/**
 	 * @param pid
 	 *            integer Post ID whose custom fields will be retrieved.
 	 * 
-	 * @return
-	 * 		 Returns an ArrayList<String> containing the keys of all custom fields of a particular post or page.
+	 * @return Returns an ArrayList<String> containing the keys of all custom
+	 *         fields of a particular post or page.
 	 * 
 	 * @see getPostCustom, getPostCustomValues
 	 */
-	public void getPostCustomKeys(int pid, OnCustomFieldsListener listener){
+	public void getPostCustomKeys(int pid, OnCustomFieldsListener listener) {
 		postHandler.setOnCustomFieldsListener(listener);
 		httpClient.get(BASE_URL + WPCustomField.GET_POST_KEYS, postHandler);
 	}
-	
+
 	/**
-	 * <h1>This function is useful if you wish to access a custom field that is not unique, i.e. has more than 1 value associated with it.
-	 * </h1>
+	 * <h1>This function is useful if you wish to access a custom field that is
+	 * not unique, i.e. has more than 1 value associated with it.</h1>
 	 * 
 	 * @param key
-	 * 			  The key whose values you want returned.
+	 *            The key whose values you want returned.
 	 * @param pid
 	 *            integer Post ID whose custom fields will be retrieved.
 	 * 
-	 * @return
-	 * 		 </h1>Returns an ArrayList<String> containing the values of all custom fields of a particular post or page.</h2>
+	 * @return </h1>Returns an ArrayList<String> containing the values of all
+	 *         custom fields of a particular post or page.</h2>
 	 * 
 	 * @see getPostCustomKeys, getPostCustom
 	 */
-	public void getPostCustomValues(String key, int pid, OnCustomFieldsListener listener){
+	public void getPostCustomValues(String key, int pid,
+			OnCustomFieldsListener listener) {
 		postHandler.setOnCustomFieldsListener(listener);
 		httpClient.get(BASE_URL + WPCustomField.GET_POST_KEYS, postHandler);
 	}
-	
-	
+
 	// TODO: most probably its best to use the Params, rather than supplying an
 	// overloaded function for each case
 	public void getPosts(OnPostsReceivedListener listener) {
@@ -280,19 +299,20 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 
 	public void getPosts(WPQuery query, OnPostsReceivedListener listener) {
 		postHandler.setOnPostsReceivedListener(listener);
-		
+
 		RequestParams reqParams = query.getQuery();
 		httpClient.get(BASE_URL + WPPost.POSTS_URL, reqParams, postHandler);
 	}
-	
-	public void getPosts(WPQuery query, int count, int page, OnPostsReceivedListener listener) {
+
+	public void getPosts(WPQuery query, int count, int page,
+			OnPostsReceivedListener listener) {
 		postHandler.setOnPostsReceivedListener(listener);
 		RequestParams reqParams = query.getQuery();
-		
+
 		httpClient.get(BASE_URL + WPPost.POSTS_URL + "?" + "count=" + count
 				+ "&" + "page=" + page, reqParams, postHandler);
 	}
-	
+
 	public void getPosts(int count, int page, OnPostsReceivedListener listener) {
 		postHandler.setOnPostsReceivedListener(listener);
 		httpClient.get(BASE_URL + WPPost.POSTS_URL + "?" + "count=" + count
@@ -486,46 +506,48 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 					}
 				});
 	}
-	
+
 	/**
-	 * <h1>This function is useful if you wish to use a custom controller on your server
-	 * </h1>
+	 * <h1>This function is useful if you wish to use a custom controller on
+	 * your server</h1>
 	 * 
 	 * @param controller
-	 * 			  The controller whose responsable of handling this request.
+	 *            The controller whose responsable of handling this request.
 	 * @param method
 	 *            The specific method whose going to process this request
 	 * 
-	 * @return
-	 * 		 </h1>Returns a JSONObject of response</h2>
+	 * @return </h1>Returns a JSONObject of response</h2>
 	 * 
 	 */
-	public void apiRequest(String controller, String method, OnApiRequestListener listener){
+	public void apiRequest(String controller, String method,
+			OnApiRequestListener listener) {
 		apiRequestHandler = new WordpressResponseHandler<JSONObject>();
 		apiRequestHandler.setOnApiRequestListener(listener);
 		httpClient.get(BASE_URL + controller + "/" + method, apiRequestHandler);
 	}
 
 	/**
-	 * <h1>This function is useful if you wish to use a custom controller on your server
-	 * </h1>
+	 * <h1>This function is useful if you wish to use a custom controller on
+	 * your server</h1>
 	 * 
 	 * @param controller
-	 * 			  The controller whose responsable of handling this request.
+	 *            The controller whose responsable of handling this request.
 	 * @param method
 	 *            The specific method whose going to process this request
 	 * @param params
-	 *            if your request needs any request params, if it doesn't, please user the overloaded method.
-	 * @return
-	 * 		 </h1>Returns a JSONObject of response</h2>
+	 *            if your request needs any request params, if it doesn't,
+	 *            please user the overloaded method.
+	 * @return </h1>Returns a JSONObject of response</h2>
 	 * 
 	 */
-	public void apiRequest(String controller, String method, RequestParams params, OnApiRequestListener listener){
+	public void apiRequest(String controller, String method,
+			RequestParams params, OnApiRequestListener listener) {
 		apiRequestHandler = new WordpressResponseHandler<JSONObject>();
 		apiRequestHandler.setOnApiRequestListener(listener);
-		httpClient.get(BASE_URL + controller + "/" + method, params, apiRequestHandler);
+		httpClient.get(BASE_URL + controller + "/" + method, params,
+				apiRequestHandler);
 	}
-	
+
 	public void updatePost(final WPPost post, int userId, final String status,
 			final WordpressResponseHandler<WPPost> responseHandler) {
 		// TODO: add the cookie
@@ -578,6 +600,8 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 
 	private class WPLogin {
 
+		private String BAD_NONCE = "-1";
+
 		private String nonceURL;
 		private String cookieURL;
 
@@ -586,7 +610,18 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 
 		private Communication json;
 
-		public WPLogin(String un, String pass) {
+		public WPLogin(String un, String pass, final OnLoginListener listener) {
+			listener.OnLoginStart();
+
+			/*
+			 * 1 - OnLoginStart is called
+			 * 2 - Nonce request.
+			 * 		1 - failure : calls OnLoginFailure
+			 * 		2 - success : make cookie request (actual login)
+			 * 			1 - failure : calls OnLoginFailure
+			 * 			2 - success : calls OnLoginSuccess with a valid session
+			 */
+			
 			userName = un;
 			password = pass;
 
@@ -595,135 +630,127 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 			nonceURL = context.getString(R.string.url).concat(
 					context.getString(R.string.loginNonce));
 
-			json = new Communication();
+			final WPSession userSession = new WPSession(context);
 
-			ProcessLogin login = new ProcessLogin();
-			login.execute(userName, password);
-		}
+			httpClient.get(nonceURL, new JsonHttpResponseHandler() {
+				@Override
+				public void onSuccess(int statusCode, Header[] headers,
+						JSONObject response) {
+					super.onSuccess(statusCode, headers, response);
 
-		private class ProcessLogin extends
-				AsyncTask<String, WPSession, WPSession> {
-
-			private OnLoginListener listener;
-
-			public ProcessLogin() {
-				listener = loginListener;
-			}
-
-			@Override
-			protected void onPostExecute(WPSession result) {
-				if (result.getStatus() == Wordpress.LOGIN_SUCCESS) {
-					listener.OnLoginSuccess(result);
-				} else {
-					listener.OnLoginFailure(result);
-				}
-			}
-
-			@Override
-			protected void onPreExecute() {
-				listener.OnLoginStart();
-			}
-
-			@Override
-			protected WPSession doInBackground(String... params) {
-
-				JSONObject nonceRequest = json.getJSONResponse(nonceURL);
-
-				WPSession userSession = new WPSession(context);
-
-				// Check nonce status
-				if (isNonceOk(nonceRequest)) {
-					try {
-						String nonce = nonceRequest.getString("nonce");
-						Log.d("LoginNonce", nonce);
-
-						userSession.setNonce(nonce);
-						// replace URL variables
-						cookieURL = cookieURL.replace("NONCE", nonce);
-						cookieURL = cookieURL.replace("USER", params[0]);
-						cookieURL = cookieURL.replace("PASSWORD", params[1]);
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					JSONObject cookieRequest = json.getJSONResponse(cookieURL);
-
-					// Check cookie status
-					if (isCookieOk(cookieRequest)) {
+					// Check nonce status
+					if (isNonceOk(response)) {
 						try {
-							userSession.setSession(cookieRequest);
-						} catch (JSONException e) {
-						}
+							String nonce = response.getString("nonce");
+							Log.d("LoginNonce", nonce);
 
-						userSession.setStatus(Wordpress.LOGIN_SUCCESS);
-						Log.d("LoginCookie", userSession.getCookie());
-
-						return userSession;
-					} else {
-						int code = Wordpress.LOGIN_FAILED;
-						try {
-							code = cookieRequest.getInt("code");
+							userSession.setNonce(nonce);
+							// replace URL variables
+							cookieURL = cookieURL.replace("NONCE", nonce);
+							cookieURL = cookieURL.replace("USER", userName);
+							cookieURL = cookieURL.replace("PASSWORD", password);
 						} catch (JSONException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						switch (code) {
-						case 1:
-							userSession
-									.setStatus(Wordpress.LOGIN_USER_NAME_ERROR);
-							return userSession;
-						case 2:
-							userSession
-									.setStatus(Wordpress.LOGIN_PASSWORD_ERROR);
-							return userSession;
-						case 3:
-							userSession
-									.setStatus(Wordpress.LOGIN_CHECK_PASSWORD_AND_OR_USERNAME);
-							return userSession;
-						default:
-							userSession.setStatus(Wordpress.LOGIN_FAILED);
-							return userSession;
-						}
+
+						httpClient.get(cookieURL,
+								new JsonHttpResponseHandler() {
+									@Override
+									public void onSuccess(int statusCode,
+											Header[] headers,
+											JSONObject response) {
+										// Check cookie status
+										if (isCookieOk(response)) {
+											try {
+												userSession
+														.setSession(response);
+											} catch (JSONException e) {
+											}
+
+											userSession
+													.setStatus(Wordpress.LOGIN_SUCCESS);
+											Log.d("LoginCookie",
+													userSession.getCookie());
+
+											listener.OnLoginSuccess(userSession);
+
+										} else {
+											int code = Wordpress.LOGIN_FAILED;
+											try {
+												code = response.getInt("code");
+											} catch (JSONException e) {
+												// TODO Auto-generated catch
+												// block
+												e.printStackTrace();
+											}
+											switch (code) {
+											case 1:
+												userSession
+														.setStatus(Wordpress.LOGIN_USER_NAME_ERROR);
+												listener.OnLoginFailure(userSession);
+											case 2:
+												userSession
+														.setStatus(Wordpress.LOGIN_PASSWORD_ERROR);
+												listener.OnLoginFailure(userSession);
+											case 3:
+												userSession
+														.setStatus(Wordpress.LOGIN_CHECK_PASSWORD_AND_OR_USERNAME);
+												listener.OnLoginFailure(userSession);
+											}
+										}
+									}
+
+									@Override
+									public void onFailure(Throwable arg0,
+											JSONObject arg1) {
+										onConnectionFailureListener.OnConnectionFailed();
+									}
+								});
 					}
 				}
 
-				userSession.setStatus(Wordpress.LOGIN_FAILED);
-				return userSession;
+				@Override
+				public void onFailure(Throwable arg0, JSONObject arg1) {
+					onConnectionFailureListener.OnConnectionFailed();
+				}
+			});
+		}
+
+		private boolean isNonceOk(JSONObject nr) {
+			String status = null;
+
+			try {
+				status = nr.get("status").toString();
+			} catch (Exception s) {
+
 			}
 
-			private boolean isNonceOk(JSONObject nr) {
-				String status = null;
-
-				try {
-					status = nr.get("status").toString();
-				} catch (Exception s) {
-
-				}
-
-				if (status.equals("ok")) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-
-			private boolean isCookieOk(JSONObject nr) {
-				String status = null;
-
-				try {
-					status = nr.get("status").toString();
-				} catch (Exception s) {
-
-				}
-
-				if (status.equals("ok")) {
-					return true;
-				} else {
-					return false;
-				}
+			if (status.equals("ok")) {
+				return true;
+			} else {
+				return false;
 			}
 		}
+
+		private boolean isCookieOk(JSONObject nr) {
+			String status = null;
+
+			try {
+				status = nr.get("status").toString();
+			} catch (Exception s) {
+
+			}
+
+			if (status.equals("ok")) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		
+
 	}
 
 	private class WPRegister {
@@ -886,17 +913,9 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 		// TODO Auto-generated method stub
 
 	}
-	
-	protected static String parseNonce(JSONObject response) throws JSONException {
-		String nonce;
-		nonce = response.getString("nonce");
-		Log.d("CreatePostNonceResponse", nonce);
 
-		return nonce;
-	}
-	
-	protected static HashMap<String, String> parseResponseMeta(JSONObject response)
-			throws JSONException {
+	protected static HashMap<String, String> parseResponseMeta(
+			JSONObject response) throws JSONException {
 		int count = 0, countTotal = 0, pages = 0;
 		count = response.getInt("count");
 

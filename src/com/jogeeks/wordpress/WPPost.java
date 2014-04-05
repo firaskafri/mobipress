@@ -537,4 +537,11 @@ public class WPPost {
 		return posts;
 	}
 
+	protected static String parseNonce(JSONObject response) throws JSONException {
+		String nonce;
+		nonce = response.getString("nonce");
+		Log.d("CreatePostNonceResponse", nonce);
+
+		return nonce;
+	}
 }

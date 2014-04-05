@@ -18,6 +18,7 @@ import com.jogeeks.wordpress.listeners.OnCommentsReceivedListener;
 import com.jogeeks.wordpress.listeners.OnConnectionFailureListener;
 import com.jogeeks.wordpress.listeners.OnCreatePostListener;
 import com.jogeeks.wordpress.listeners.OnCustomFieldsListener;
+import com.jogeeks.wordpress.listeners.OnLoginListener;
 import com.jogeeks.wordpress.listeners.OnPostReceivedListener;
 import com.jogeeks.wordpress.listeners.OnPostsReceivedListener;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -33,7 +34,8 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 	private OnConnectionFailureListener onConnectionFailureListener;
 	private OnCustomFieldsListener onCustomFieldsListener;
 	private OnApiRequestListener onApiRequestListener;
-
+	private OnLoginListener onLoginListener;
+	
 	public void setOnApiRequestListener(OnApiRequestListener oar) {
 		onApiRequestListener = oar;
 	}
@@ -70,6 +72,10 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 		onCreatePostListener = opcl;
 	}
 
+	public void setOnLoginListener(OnLoginListener oll){
+		onLoginListener = oll;
+	}
+	
 	@Override
 	public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
 		super.onSuccess(statusCode, headers, response);
@@ -158,7 +164,7 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 			}
 			/***** Page controller *****/
 			else if (controler.equalsIgnoreCase(Wordpress.NONCE_URL + "/")) {
-				onNonceRecieved(Wordpress.parseNonce(response), "create_post");
+				onNonceRecieved(WPPost.parseNonce(response), "create_post");
 			}
 			/***** Comments controller *****/
 			else if (controler.equalsIgnoreCase(WPComment.SUBMIT_COMMENT_URL)) {
