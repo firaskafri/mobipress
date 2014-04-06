@@ -39,6 +39,7 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	public static final int LOGIN_USER_NAME_ERROR = 1;
 	public static final int LOGIN_PASSWORD_ERROR = 2;
 	public static final int LOGIN_CHECK_PASSWORD_AND_OR_USERNAME = 3;
+	public static final int BAD_NONCE = 4;
 
 	public static final int REGISTRATION_FAILED = -1;
 	public static final int REGISTRATION_SUCCESS = 0;
@@ -614,14 +615,12 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 			listener.OnLoginStart();
 
 			/*
-			 * 1 - OnLoginStart is called
-			 * 2 - Nonce request.
-			 * 		1 - failure : calls OnLoginFailure
-			 * 		2 - success : make cookie request (actual login)
-			 * 			1 - failure : calls OnLoginFailure
-			 * 			2 - success : calls OnLoginSuccess with a valid session
+			 * 1 - OnLoginStart is called 2 - Nonce request. 1 - failure : calls
+			 * OnLoginFailure 2 - success : make cookie request (actual login) 1
+			 * - failure : calls OnLoginFailure 2 - success : calls
+			 * OnLoginSuccess with a valid session
 			 */
-			
+
 			userName = un;
 			password = pass;
 
@@ -665,8 +664,7 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 											try {
 												userSession
 														.setSession(response);
-											} catch (JSONException e) {
-											}
+											} catch (JSONException e) {}
 
 											userSession
 													.setStatus(Wordpress.LOGIN_SUCCESS);
@@ -679,11 +677,8 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 											int code = Wordpress.LOGIN_FAILED;
 											try {
 												code = response.getInt("code");
-											} catch (JSONException e) {
-												// TODO Auto-generated catch
-												// block
-												e.printStackTrace();
-											}
+											} catch (JSONException e) {}
+											
 											switch (code) {
 											case 1:
 												userSession
@@ -704,9 +699,14 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 									@Override
 									public void onFailure(Throwable arg0,
 											JSONObject arg1) {
-										onConnectionFailureListener.OnConnectionFailed();
+										onConnectionFailureListener
+												.OnConnectionFailed();
 									}
 								});
+					} else {
+						userSession
+								.setStatus(Wordpress.BAD_NONCE);
+						listener.OnLoginFailure(userSession);
 					}
 				}
 
@@ -748,9 +748,6 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 				return false;
 			}
 		}
-
-		
-
 	}
 
 	private class WPRegister {
