@@ -51,7 +51,9 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	public static final int REGISTRATION_INVALID_PASSWORD = 6;
 
 	// http://wordpress.org/plugins/json-api/other_notes/#3.2.-Content-modifying-arguments
-	static final String BASE_URL = "http://arabappz.net/secrets/api/";
+	public static String BASE_URL = "";
+	static String API = "";
+
 	static final String NONCE_URL = "get_nonce";
 	static final String DATE_INDEX_URL = "get_date_index";
 
@@ -79,6 +81,9 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	 */
 	public Wordpress(Context context, OnConnectionFailureListener listener) {
 		this.context = context;
+		API = context.getString(R.string.api);
+		BASE_URL = context.getString(R.string.url) + "/" + API + "/";
+
 		httpClient.getHttpClient().getParams()
 				.setParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, true);
 		postHandler = new WordpressResponseHandler<WPPost>();
@@ -88,6 +93,7 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 		postHandler.setOnConnectionFailureListener(onConnectionFailureListener);
 		commentHandler
 				.setOnConnectionFailureListener(onConnectionFailureListener);
+		
 	}
 
 	/**

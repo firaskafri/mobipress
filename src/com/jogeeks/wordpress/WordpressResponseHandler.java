@@ -85,7 +85,7 @@ public class WordpressResponseHandler<OBJ_TYPE> extends JsonHttpResponseHandler 
 
 			String requestUri = super.getRequestURI().toString();
 			String[] splits = requestUri
-					.split("http://arabappz.net/secrets/api/");
+					.split(Wordpress.BASE_URL);
 			String controler = splits[1].split(Pattern.quote("?"))[0];
 
 			Log.d("contorler", controler);

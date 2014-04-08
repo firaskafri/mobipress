@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="url"></string>
+    <string name="api">api</string>
     <string name="cookie_request" tools:ignore="MissingTranslation,MissingTranslation">api/auth/generate_auth_cookie/?nonce=NONCE&amp;username=USER&amp;password=PASSWORD</string>
     <string name="loginNonce" tools:ignore="MissingTranslation,MissingTranslation">api/get_nonce/?controller=auth&amp;method=generate_auth_cookie</string>
     <string name="registerNonce" tools:ignore="MissingTranslation">api/get_nonce/?controller=user&amp;method=register</string>
