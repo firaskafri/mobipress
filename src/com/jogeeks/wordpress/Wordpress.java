@@ -613,7 +613,8 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 
 		private String userName;
 		private String password;
-
+		private RequestParams loginPar = new RequestParams();
+		
 		public WPLogin(String un, String pass, final OnLoginListener listener) {
 			listener.OnLoginStart();
 
@@ -644,16 +645,17 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 						try {
 							String nonce = response.getString("nonce");
 							userSession.setNonce(nonce);
-							// replace URL variables
-							cookieURL = cookieURL.replace("NONCE", nonce);
-							cookieURL = cookieURL.replace("USER", userName);
-							cookieURL = cookieURL.replace("PASSWORD", password);
+							
+							loginPar.add("nonce", nonce);
+							loginPar.add("username", userName);
+							loginPar.add("password", password);
+
 						} catch (JSONException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 
-						httpClient.get(cookieURL,
+						httpClient.get(cookieURL, loginPar,
 								new JsonHttpResponseHandler() {
 									@Override
 									public void onSuccess(int statusCode,
