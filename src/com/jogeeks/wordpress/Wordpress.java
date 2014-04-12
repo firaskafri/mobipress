@@ -15,7 +15,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.jogeeks.internet.Communication;
 import com.jogeeks.mobipress.R;
 import com.jogeeks.wordpress.listeners.OnApiRequestListener;
 import com.jogeeks.wordpress.listeners.OnCategoriesListener;
@@ -93,7 +92,7 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 		postHandler.setOnConnectionFailureListener(onConnectionFailureListener);
 		commentHandler
 				.setOnConnectionFailureListener(onConnectionFailureListener);
-		
+
 	}
 
 	/**
@@ -116,8 +115,8 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 	 *            Pass a bundle with four String values that represent user info
 	 *            "username", "password", "email", "nickname"
 	 */
-	public void register(Bundle userData) {
-		new WPRegister(userData);
+	public void register(Bundle userData, OnRegisterListener listener) {
+		new WPRegister(userData, listener);
 	}
 
 	public void finish(Context context) {
@@ -615,8 +614,6 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 		private String userName;
 		private String password;
 
-		private Communication json;
-
 		public WPLogin(String un, String pass, final OnLoginListener listener) {
 			listener.OnLoginStart();
 
@@ -630,10 +627,9 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 			userName = un;
 			password = pass;
 
-			cookieURL = context.getString(R.string.url).concat(
-					context.getString(R.string.cookie_request));
-			nonceURL = context.getString(R.string.url).concat(
-					context.getString(R.string.loginNonce));
+			cookieURL = BASE_URL.concat(context
+					.getString(R.string.cookie_request));
+			nonceURL = BASE_URL.concat(context.getString(R.string.loginNonce));
 
 			final WPSession userSession = new WPSession(context);
 
@@ -647,8 +643,6 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 					if (isNonceOk(response)) {
 						try {
 							String nonce = response.getString("nonce");
-							Log.d("LoginNonce", nonce);
-
 							userSession.setNonce(nonce);
 							// replace URL variables
 							cookieURL = cookieURL.replace("NONCE", nonce);
@@ -670,12 +664,11 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 											try {
 												userSession
 														.setSession(response);
-											} catch (JSONException e) {}
+											} catch (JSONException e) {
+											}
 
 											userSession
 													.setStatus(Wordpress.LOGIN_SUCCESS);
-											Log.d("LoginCookie",
-													userSession.getCookie());
 
 											listener.OnLoginSuccess(userSession);
 
@@ -683,8 +676,9 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 											int code = Wordpress.LOGIN_FAILED;
 											try {
 												code = response.getInt("code");
-											} catch (JSONException e) {}
-											
+											} catch (JSONException e) {
+											}
+
 											switch (code) {
 											case 1:
 												userSession
@@ -710,8 +704,7 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 									}
 								});
 					} else {
-						userSession
-								.setStatus(Wordpress.BAD_NONCE);
+						userSession.setStatus(Wordpress.BAD_NONCE);
 						listener.OnLoginFailure(userSession);
 					}
 				}
@@ -766,109 +759,117 @@ public class Wordpress implements OnLoginListener, OnRegisterListener {
 		private String email;
 		private String password;
 
-		private Communication json;
+		RequestParams regPar = new RequestParams();
 
-		public WPRegister(Bundle regData) {
+		private OnRegisterListener listener;
+
+		public WPRegister(Bundle regData, OnRegisterListener listener) {
+			this.listener = listener;
+
 			userName = regData.getString("username");
 			password = regData.getString("password");
 			displayName = regData.getString("displayname");
 			email = regData.getString("email");
 
-			nonceURL = context.getString(R.string.url).concat(
+			nonceURL = BASE_URL.concat(
 					context.getString(R.string.registerNonce));
-			registerURL = context.getString(R.string.url).concat(
+			registerURL = BASE_URL.concat(
 					context.getString(R.string.register_request));
 
-			json = new Communication();
-
-			new ProcessRegister().execute(userName, password, displayName,
-					email);
+			register();
 
 		}
 
-		private class ProcessRegister extends
-				AsyncTask<String, Integer, Integer> {
-			private OnRegisterListener listener;
+		private void register() {
+			listener.onRegisterStart();
 
-			public ProcessRegister() {
-				listener = registerListener;
-			}
+			httpClient.get(nonceURL, new JsonHttpResponseHandler() {
 
-			@Override
-			protected void onPostExecute(Integer result) {
-				if (result == Wordpress.REGISTRATION_SUCCESS) {
-					listener.OnRegisterSuccess(result);
-				} else {
-					listener.OnRegisterFailure(result);
-				}
-			}
+				@Override
+				public void onSuccess(int statusCode, Header[] headers,
+						JSONObject response) {
 
-			@Override
-			protected void onPreExecute() {
-				listener.onRegisterStart();
-			}
+					// Check nonce status
+					if (isNonceOk(response)) {
+						try {
+							String nonce = response.getString("nonce");
+							new WPSession(context).setNonce(nonce);
+							// replace URL variables
+							regPar.add("nonce", nonce);
+							regPar.add("username", userName);
+							regPar.add("display_name", displayName);
+							regPar.add("email", email);
+							regPar.add("password", password);
 
-			@Override
-			protected Integer doInBackground(String... params) {
-				int code = Wordpress.REGISTRATION_FAILED;
+						} catch (JSONException e) {
+							e.printStackTrace();
+							listener.OnRegisterFailure(Wordpress.REGISTRATION_FAILED);
+						}
 
-				JSONObject nonceRequest = json.getJSONResponse(nonceURL);
+						httpClient.get(registerURL, regPar,
+								new JsonHttpResponseHandler() {
 
-				// Check nonce status
-				if (isNonceOk(nonceRequest)) {
-					try {
-						String nonce = nonceRequest.getString("nonce");
-						new WPSession(context).setNonce(nonce);
-						// replace URL variables
-						registerURL = registerURL.replace("NONCE", nonce);
-						registerURL = registerURL.replace("USER", params[0]);
-						registerURL = registerURL
-								.replace("PASSWORD", params[1]);
-						registerURL = registerURL.replace("DISPLAYNAME",
-								params[2]);
-						registerURL = registerURL.replace("UMAIL", params[3]);
+									@Override
+									public void onSuccess(int statusCode,
+											Header[] headers,
+											JSONObject response) {
+										int result = registrationStatus(response);
 
-					} catch (JSONException e) {
-						e.printStackTrace();
-						return Wordpress.REGISTRATION_FAILED;
+										if (result == Wordpress.REGISTRATION_SUCCESS) {
+											listener.OnRegisterSuccess(result);
+										} else {
+											listener.OnRegisterFailure(result);
+										}
+									}
+
+									@Override
+									public void onFailure(Throwable arg0,
+											JSONObject arg1) {
+										onConnectionFailureListener
+												.OnConnectionFailed();
+									}
+								});
+
+					}else{
+						//nonce is not ok
+						listener.OnRegisterFailure(Wordpress.BAD_NONCE);
 					}
 
-					Log.d("URL", registerURL);
-					JSONObject registerRequest = json
-							.getJSONResponse(registerURL);
-
-					return registrationStatus(registerRequest);
 				}
 
-				return code;
+				@Override
+				public void onFailure(Throwable arg0, JSONObject arg1) {
+					onConnectionFailureListener.OnConnectionFailed();
+				}
+			});
+
+		}
+
+		private boolean isNonceOk(JSONObject nr) {
+			String status = null;
+
+			try {
+				status = nr.get("status").toString();
+			} catch (Exception s) {
+
 			}
 
-			private boolean isNonceOk(JSONObject nr) {
-				String status = null;
-
-				try {
-					status = nr.get("status").toString();
-				} catch (Exception s) {
-
-				}
-
-				if (status.equals("ok")) {
-					return true;
-				} else {
-					return false;
-				}
+			if (status.equals("ok")) {
+				return true;
+			} else {
+				return false;
 			}
+		}
 
-			private int registrationStatus(JSONObject nr) {
-				int code = -1;
+		private int registrationStatus(JSONObject nr) {
+			int code = -1;
 
-				try {
-					code = Integer.parseInt(nr.get("code").toString());
-				} catch (Exception s) {
+			try {
+				code = Integer.parseInt(nr.get("code").toString());
+			} catch (Exception s) {
 
-				}
-				return code;
 			}
+			return code;
 		}
 
 	}

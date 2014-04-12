@@ -7,7 +7,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.jogeeks.internet.Communication;
 import com.jogeeks.mobipress.R;
 
 public class WPComment {
@@ -101,36 +100,6 @@ public class WPComment {
 
 	public void setParent(int parent) {
 		this.parent = parent;
-	}
-
-	public void reportComment(int commentId, String comment, Context context) {
-		new ReportComment().execute(commentId, comment, context);
-	}
-
-	private class ReportComment extends AsyncTask<Object, Integer, Integer> {
-		private String reportCommentURL;
-
-		@Override
-		protected void onPostExecute(Integer result) {
-
-		}
-
-		@Override
-		protected Integer doInBackground(Object... params) {
-			Context con = (Context) params[3];
-			reportCommentURL = con.getString(R.string.url).concat(
-					con.getString(R.string.report_comment));
-
-			reportCommentURL = reportCommentURL.replace("CID",
-					Integer.toString((Integer) params[0]));
-			reportCommentURL = reportCommentURL.replace("COMMENT",
-					(String) params[1]);
-
-			new Communication().getJSONResponse(reportCommentURL);
-
-			return 0;
-		}
-
 	}
 
 	public static Bundle getBundle(WPComment comment) {

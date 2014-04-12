@@ -2,10 +2,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="url"></string>
     <string name="api">api</string>
-    <string name="cookie_request" tools:ignore="MissingTranslation,MissingTranslation">api/auth/generate_auth_cookie/?nonce=NONCE&amp;username=USER&amp;password=PASSWORD</string>
-    <string name="loginNonce" tools:ignore="MissingTranslation,MissingTranslation">api/get_nonce/?controller=auth&amp;method=generate_auth_cookie</string>
-    <string name="registerNonce" tools:ignore="MissingTranslation">api/get_nonce/?controller=user&amp;method=register</string>
+    <string name="cookie_request" tools:ignore="MissingTranslation,MissingTranslation">/auth/generate_auth_cookie/?nonce=NONCE&amp;username=USER&amp;password=PASSWORD</string>
+    <string name="loginNonce" tools:ignore="MissingTranslation,MissingTranslation">/get_nonce/?controller=auth&amp;method=generate_auth_cookie</string>
+    <string name="registerNonce" tools:ignore="MissingTranslation">/get_nonce/?controller=user&amp;method=register</string>
     <string name="get_recent_posts" tools:ignore="MissingTranslation">api/get_recent_posts/?</string>
-    <string name="register_request" tools:ignore="MissingTranslation">api/user/register/?nonce=NONCE&amp;username=USER&amp;display_name=DISPLAYNAME&amp;email=UMAIL&amp;password=PASSWORD</string>
+    <string name="register_request" tools:ignore="MissingTranslation">/user/register/?</string>
 	<string name="report_comment" tools:ignore="MissingTranslation">api/report/report_comment/?c=CID&amp;r=COMMENT</string>
 </resources>
