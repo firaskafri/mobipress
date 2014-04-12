@@ -57,7 +57,15 @@ public class WPAtachment extends ArrayList<String> {
 		if (this.isEmpty()) {
 			return "";
 		}
-		return get(1);
+		
+		//TODO figure out whats causing wordpress not to generate the thumbnail sometimes
+		//Random thoughts:
+		//the only post that cause this problem is a post with arabic file name attachment
+		try{
+			return get(1);
+		}catch(Exception e){
+			return get(0);
+		}
 	}
 
 	public String getMediumImage() {
